@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Detail, ActionPanel, Action, showToast, Toast, getPreferenceValues } from '@raycast/api';
-import { Preferences, getInputText, callGemini } from './utils'; // utilsから共通関数と型をインポート
+import React, { useState, useEffect } from "react";
+import { Detail, ActionPanel, Action, showToast, Toast, getPreferenceValues } from "@raycast/api";
+import { Preferences, getInputText, callGemini } from "./utils"; // utilsから共通関数と型をインポート
 
 export default function Command() {
   // 状態管理用フック
-  const [text, setText] = useState<string>(''); // 表示する要約結果テキスト
+  const [text, setText] = useState<string>(""); // 表示する要約結果テキスト
   const [isLoading, setIsLoading] = useState<boolean>(true); // ローディング状態
   const [error, setError] = useState<string | null>(null); // エラーメッセージ
 
   // コンポーネントマウント時に要約処理を実行
   useEffect(() => {
-    const summarize = async () => { // 関数名を summarize に変更 (任意)
+    const summarize = async () => {
+      // 関数名を summarize に変更 (任意)
       setIsLoading(true); // 開始時にローディング状態にする
       try {
         // PreferencesからAPIキーとモデル名を取得
@@ -28,7 +29,7 @@ export default function Command() {
         await showToast(Toast.Style.Animated, "Summarizing in Japanese..."); // メッセージを要約用に変更
 
         // Gemini APIに渡すプロンプトを作成 (日本語要約用)
-        const prompt = `以下のテキストを日本語で要約してください:\n\n${inputText}`; // プロンプトを要約用に変更
+        const prompt = `以下のテキストを日本語で要約してください。応答には要約文のみを含め、他の導入、コメント、代替案などは含めないでください:\n\n${inputText}`;
 
         // 共通化されたGemini API呼び出し関数を使用
         const summarizedText = await callGemini(prompt, geminiApiKey, geminiModel); // 変数名を変更 (任意)
@@ -36,7 +37,6 @@ export default function Command() {
         // 成功したら結果テキストを状態にセット
         setText(summarizedText);
         await showToast(Toast.Style.Success, "Summarization Complete"); // メッセージを要約用に変更
-
       } catch (err) {
         // エラーハンドリング
         console.error("Summarization Error:", err); // エラーログの識別子を変更 (任意)

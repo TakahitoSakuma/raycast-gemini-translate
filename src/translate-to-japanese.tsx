@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Detail, ActionPanel, Action, showToast, Toast, getPreferenceValues } from '@raycast/api';
-import { Preferences, getInputText, callGemini } from './utils'; // utilsから共通関数と型をインポート
+import React, { useState, useEffect } from "react";
+import { Detail, ActionPanel, Action, showToast, Toast, getPreferenceValues } from "@raycast/api";
+import { Preferences, getInputText, callGemini } from "./utils"; // utilsから共通関数と型をインポート
 
 export default function Command() {
   // 状態管理用フック
-  const [text, setText] = useState<string>(''); // 表示する翻訳結果テキスト
+  const [text, setText] = useState<string>(""); // 表示する翻訳結果テキスト
   const [isLoading, setIsLoading] = useState<boolean>(true); // ローディング状態
   const [error, setError] = useState<string | null>(null); // エラーメッセージ
 
@@ -28,7 +28,7 @@ export default function Command() {
         await showToast(Toast.Style.Animated, "Translating to Japanese..."); // メッセージを日本語用に変更
 
         // Gemini APIに渡すプロンプトを作成 (日本語翻訳用)
-        const prompt = `Translate the following text to Japanese:\n\n${inputText}`; // プロンプトを日本語用に変更
+        const prompt = `Translate the following text to Japanese. Your response must contain strictly the translated text and nothing else. Do not include introductions, explanations, or alternative translations:\n\n${inputText}`;
 
         // 共通化されたGemini API呼び出し関数を使用
         const translatedText = await callGemini(prompt, geminiApiKey, geminiModel);
@@ -36,7 +36,6 @@ export default function Command() {
         // 成功したら結果テキストを状態にセット
         setText(translatedText);
         await showToast(Toast.Style.Success, "Translation Complete");
-
       } catch (err) {
         // エラーハンドリング
         console.error("Translation Error:", err);

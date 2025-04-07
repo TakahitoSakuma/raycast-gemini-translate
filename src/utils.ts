@@ -49,7 +49,7 @@ export async function callGemini(prompt: string, apiKey: string, modelName: stri
     const response = result.response;
 
     let outputText = "";
-    if (response && typeof response.text === 'function') {
+    if (response && typeof response.text === "function") {
       outputText = response.text().trim();
     } else if (response?.candidates?.[0]?.content?.parts?.[0]?.text) {
       outputText = response.candidates[0].content.parts[0].text.trim();
@@ -60,12 +60,11 @@ export async function callGemini(prompt: string, apiKey: string, modelName: stri
       throw new Error("Could not extract valid text from response.");
     }
     return outputText;
-
   } catch (error) {
     console.error("Gemini API Error:", error);
     let message = "Failed to call Gemini API";
     if (error instanceof Error) {
-      if (error.message.includes('SAFETY')) {
+      if (error.message.includes("SAFETY")) {
         message = "Blocked due to safety settings.";
       } else {
         // 他のAPIエラーメッセージなども考慮できる

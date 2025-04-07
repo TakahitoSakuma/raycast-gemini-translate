@@ -30,7 +30,7 @@
   "commands": [
     {
       "name": "translate-to-english",
-      "title": "Translate to English (Gemini)",
+      "title": "Translate to English (gemini)",
       "description": "Translate selected/clipboard text to English using Gemini.",
       "mode": "view",
       "shortcut": {
@@ -43,7 +43,7 @@
     },
     {
       "name": "translate-to-japanese",
-      "title": "Translate to Japanese (Gemini)",
+      "title": "Translate to Japanese (gemini)",
       "description": "Translate selected/clipboard text to Japanese using Gemini.",
       "mode": "view",
       "shortcut": {
@@ -56,7 +56,7 @@
     },
     {
       "name": "summarize-japanese",
-      "title": "Summarize in Japanese (Gemini)",
+      "title": "Summarize in Japanese (gemini)",
       "description": "Summarize selected/clipboard text in Japanese using Gemini.",
       "mode": "view",
       "shortcut": {
