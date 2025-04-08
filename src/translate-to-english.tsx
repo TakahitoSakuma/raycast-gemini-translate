@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Detail, ActionPanel, Action, showToast, Toast, getPreferenceValues } from "@raycast/api";
-import { showFailureToast } from '@raycast/utils';
+import { showFailureToast } from "@raycast/utils";
 import { Preferences, getInputText, callGemini } from "./utils";
 
 export default function Command() {
