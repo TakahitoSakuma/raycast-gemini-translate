@@ -25,10 +25,6 @@ This extension requires a Google AI Gemini API Key to function.
   * `Cmd + Shift + S`: Summarize in Japanese
 3.  The result will be displayed in the Raycast window.
 
-## Screenshots
-
-Please refer to the screenshots available in the Raycast Store listing for a visual overview of the extension's features and how it works.
-
 ---
 
 
