@@ -1,8 +1,8 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "gemini-translate",
-  "title": "Gemini Translate",
-  "description": "Translate and Summarize text using Google Gemini API.",
+  "name": "gemini-tech-translate",
+  "title": "Gemini Tech Translate",
+  "description": "Translate and Summarize technical text using Google Gemini API.",
   "icon": "extension-icon.png",
   "author": "yuki_tsuchida",
   "categories": [

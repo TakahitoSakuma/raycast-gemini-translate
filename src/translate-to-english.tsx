@@ -28,8 +28,7 @@ export default function Command() {
         await showToast(Toast.Style.Animated, "Translating to English...");
 
         // Gemini APIに渡すプロンプトを作成 (英語翻訳用)
-        const prompt = `Translate the following text to English. Your response must contain strictly the translated text and nothing else. Do not include introductions, explanations, or alternative translations:\n\n${inputText}`;
-
+        const prompt = `Act as a software engineer translating a technical update for an English-speaking colleague. Use precise engineering vocabulary (merge, deploy, commit, etc.). Use common abbreviations like 'PR' instead of 'pull request'. Assume singular for terms like 'commit' unless multiple are clearly specified in the source text. Translate the following Japanese text to English. Output only the translated text:\n\n${inputText}`;
         // 共通化されたGemini API呼び出し関数を使用
         const translatedText = await callGemini(prompt, geminiApiKey, geminiModel);
 

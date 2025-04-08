@@ -29,7 +29,7 @@ export default function Command() {
         await showToast(Toast.Style.Animated, "Summarizing in Japanese..."); // メッセージを要約用に変更
 
         // Gemini APIに渡すプロンプトを作成 (日本語要約用)
-        const prompt = `以下のテキストを日本語で要約してください。応答には要約文のみを含め、他の導入、コメント、代替案などは含めないでください:\n\n${inputText}`;
+        const prompt = `以下のソフトウェア開発関連テキストの要点を、日本語で簡潔に要約してください。重要な技術的ポイント、決定事項、またはアクションアイテムがわかるようにまとめてください。応答には要約文のみを含め、他の導入、コメント、代替案などは含めないでください:\n\n${inputText}`;
 
         // 共通化されたGemini API呼び出し関数を使用
         const summarizedText = await callGemini(prompt, geminiApiKey, geminiModel); // 変数名を変更 (任意)

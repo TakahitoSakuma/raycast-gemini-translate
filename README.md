@@ -1,6 +1,6 @@
-# Gemini Translate
+# Gemini Tech Translate
 
-Translate and Summarize text using the Google Gemini API directly within Raycast.
+Translate and Summarize text using the Google Gemini API directly within Raycast, optimized for technical and software development contexts.
 
 ## Features
 
@@ -28,9 +28,9 @@ This extension requires a Google AI Gemini API Key to function.
 ---
 
 
-# Gemini Translate
+# Gemini Tech Translate
 
-Google Gemini APIを使用して、Raycast内で直接テキストの翻訳と要約を行う拡張機能です。
+Google Gemini APIを使用して、Raycast内で直接テキストの翻訳と要約を行う拡張機能です。特にソフトウェア開発の文脈に最適化されています。
 
 ## 機能
 
