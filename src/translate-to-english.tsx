@@ -1,73 +1,100 @@
-import React, { useState, useEffect } from "react";
-import { Detail, ActionPanel, Action, showToast, Toast, getPreferenceValues } from "@raycast/api";
+import React, { useState, useEffect, useCallback } from "react";
+import { Detail, ActionPanel, Action, Icon, showToast, Toast, getPreferenceValues } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { Preferences, getInputText, callGemini } from "./utils";
 
 export default function Command() {
   // 状態管理用フック
-  const [text, setText] = useState<string>(""); // 表示する翻訳結果テキスト
-  const [isLoading, setIsLoading] = useState<boolean>(true); // ローディング状態
-  const [error, setError] = useState<string | null>(null); // エラーメッセージ
+  const [text, setText] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState<number>(0); // 再実行トリガー
 
-  // コンポーネントマウント時に翻訳処理を実行
-  useEffect(() => {
-    const translate = async () => {
-      setIsLoading(true); // 開始時にローディング状態にする
-      try {
-        // PreferencesからAPIキーとモデル名を取得
-        const { geminiApiKey, geminiModel } = getPreferenceValues<Preferences>();
+  // 翻訳処理を useCallback でラップ
+  const translate = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    setText("");
 
-        // APIキーとモデル名が設定されているかチェック
-        if (!geminiApiKey || !geminiModel) {
-          throw new Error("API Key or Model not configured in preferences.");
-        }
-
-        // 翻訳対象のテキストを取得
-        const inputText = await getInputText();
-
-        // 処理中であることをユーザーに通知
-        await showToast(Toast.Style.Animated, "Translating to English...");
-
-        // Gemini APIに渡すプロンプトを作成 (英語翻訳用)
-        const prompt = `Act as a software engineer translating a technical update for an English-speaking colleague. Use precise engineering vocabulary (merge, deploy, commit, etc.). Use common abbreviations like 'PR' instead of 'pull request'. Assume singular for terms like 'commit' unless multiple are clearly specified in the source text. Translate the following Japanese text to English. Output only the translated text:\n\n${inputText}`;
-        // 共通化されたGemini API呼び出し関数を使用
-        const translatedText = await callGemini(prompt, geminiApiKey, geminiModel);
-
-        // 成功したら結果テキストを状態にセット
-        setText(translatedText);
-        await showToast(Toast.Style.Success, "Translation Complete");
-      } catch (err) {
-        console.error("Translation Error:", err);
-        const message = err instanceof Error ? err.message : "An unknown error occurred"; // エラーメッセージを取得
-        setError(message);
-        await showFailureToast(err, { title: "Translation Failed" });
-      } finally {
-        // 成功・失敗に関わらずローディング状態を解除
-        setIsLoading(false);
+    try {
+      const { geminiApiKey, geminiModel } = getPreferenceValues<Preferences>();
+      if (!geminiApiKey || !geminiModel) {
+        throw new Error("API Key or Model not configured in preferences.");
       }
-    };
 
-    translate(); // 非同期関数を実行
-  }, []); // 空の依存配列で、マウント時に一度だけ実行
+      const inputText = await getInputText(); // "No Text Selected" がスローされる可能性
 
-  // エラーが発生した場合の表示
+      await showToast(Toast.Style.Animated, "Translating to English...");
+
+      const prompt = `Act as a software engineer translating a technical update for an English-speaking colleague. Use precise engineering vocabulary (merge, deploy, commit, etc.). Use common abbreviations like 'PR' instead of 'pull request'. Assume singular for terms like 'commit' unless multiple are clearly specified in the source text. Translate the following Japanese text to English. Output only the translated text:\n\n${inputText}`;
+      const translatedText = await callGemini(prompt, geminiApiKey, geminiModel);
+
+      setText(translatedText);
+      await showToast(Toast.Style.Success, "Translation Complete");
+    } catch (err) {
+      console.error("Translation Error:", err);
+      const message = err instanceof Error ? err.message : "An unknown error occurred";
+      if (message === "No Text Selected") {
+        setError(message);
+        await showToast(Toast.Style.Failure, "No Text Selected", "Please select text before running the command.");
+      } else {
+        setError(message);
+        await showFailureToast(message, { title: "Translation Failed" });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, []); // useCallback の依存配列は空
+
+  // コンポーネントマウント時と refreshKey 変更時に実行
+  useEffect(() => {
+    translate();
+  }, [refreshKey, translate]); // refreshKey と translate を依存配列に追加
+
+  // エラー表示 ("No Text Selected")
+  if (error && error === "No Text Selected") {
+    return (
+      <Detail
+        markdown={`# No Text Selected\n\nPlease select some text in another application and try again.`}
+        actions={
+          <ActionPanel>
+            <Action title="Refresh" icon={Icon.ArrowClockwise} onAction={() => setRefreshKey(k => k + 1)} shortcut={{ modifiers: ["cmd"], key: "r" }}/>
+          </ActionPanel>
+        }
+      />
+    );
+  }
+  // その他のエラー表示
   if (error) {
-    return <Detail markdown={`# Error\n\n${error}`} />;
+    return (
+      <Detail
+        markdown={`# Error\n\n${error}`}
+        actions={
+          <ActionPanel>
+            <Action title="Refresh" icon={Icon.ArrowClockwise} onAction={() => setRefreshKey(k => k + 1)} shortcut={{ modifiers: ["cmd"], key: "r" }}/>
+            <Action.CopyToClipboard title="Copy Error Message" content={error} />
+          </ActionPanel>
+        }
+      />
+    );
   }
 
   // ローディング中または翻訳結果の表示
   return (
     <Detail
-      isLoading={isLoading} // ローディング状態をDetailコンポーネントに渡す
-      markdown={text} // 翻訳結果をマークダウンとして表示
+      isLoading={isLoading}
+      markdown={text}
       actions={
-        // ローディング中でなく、かつ結果テキストが存在する場合のみアクションを表示
-        !isLoading && text ? (
-          <ActionPanel>
-            <Action.CopyToClipboard title="Copy English Translation" content={text} />
-            <Action.Paste title="Paste English Translation" content={text} />
-          </ActionPanel>
-        ) : null
+        <ActionPanel>
+          {!isLoading && text && (
+            <>
+              <Action.CopyToClipboard title="Copy English Translation" content={text} />
+              <Action.Paste title="Paste English Translation" content={text} />
+            </>
+          )}
+          {/* Refreshアクションは常に表示 */}
+          <Action title="Refresh Translation" icon={Icon.ArrowClockwise} onAction={() => setRefreshKey(k => k + 1)} shortcut={{ modifiers: ["cmd"], key: "r" }}/>
+        </ActionPanel>
       }
     />
   );
