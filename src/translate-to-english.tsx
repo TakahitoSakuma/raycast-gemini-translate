@@ -26,7 +26,16 @@ export default function Command() {
 
       await showToast(Toast.Style.Animated, "Translating to English...");
 
-      const prompt = `Act as a software engineer translating a technical update for an English-speaking colleague. Use precise engineering vocabulary (merge, deploy, commit, etc.). Use common abbreviations like 'PR' instead of 'pull request'. Assume singular for terms like 'commit' unless multiple are clearly specified in the source text. Translate the following Japanese text to English. Output only the translated text:\n\n${inputText}`;
+      const prompt = `Act as a software engineer translating Japanese text for an English-speaking colleague. Translate the following text accurately, preserving the original meaning and nuance.
+
+      **Guideline for Technical Terms:**
+      * **Use precise engineering vocabulary (e.g., merge, deploy, commit, PR) ONLY IF the Japanese text explicitly mentions or clearly implies these specific software development actions.**
+      * **Do NOT insert technical jargon if the source text is general conversation, feedback, project status updates, or doesn't relate to specific code/deployment changes.** The goal is natural communication.
+      * Prioritize a translation that sounds natural for communication between colleagues based *on the source text*.
+      * Use common abbreviations like 'PR' for 'pull request' when appropriate technical terms are used based on the above guideline.
+
+      Output only the translated English text:\n\n${inputText}`;
+
       const translatedText = await callGemini(prompt, geminiApiKey, geminiModel);
 
       setText(translatedText);

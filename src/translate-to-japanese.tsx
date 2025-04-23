@@ -26,7 +26,15 @@ export default function Command() {
 
       await showToast(Toast.Style.Animated, "Translating to Japanese...");
 
-      const prompt = `Translate the following English text, which relates to software development, into natural-sounding Japanese suitable for technical communication. Use appropriate technical terms commonly used in Japan. Your response must contain strictly the translated text and nothing else. Do not include introductions, explanations, or alternative translations:\n\n${inputText}`;
+      const prompt = `Translate the following English text into natural-sounding Japanese. Adapt the tone and vocabulary appropriately based on the context of the source text.
+
+      **Guidelines:**
+      * **If the English text clearly discusses software development concepts or actions,** use appropriate Japanese technical terms (e.g., マージ, デプロイ, コミット, プルリク) where natural and suitable for communication between colleagues.
+      * **If the English text is more general (e.g., conversation, feedback, project updates),** translate it naturally into standard Japanese without forcing technical jargon.
+      * Your response must contain *only* the translated Japanese text. Do not include explanations, greetings, or alternatives.
+
+      Translate the following English text:\\n\\n${inputText} `
+
       const translatedText = await callGemini(prompt, geminiApiKey, geminiModel);
 
       setText(translatedText);

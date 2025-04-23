@@ -26,7 +26,16 @@ export default function Command() {
 
       await showToast(Toast.Style.Animated, "Summarizing in Japanese...");
 
-      const prompt = `以下のソフトウェア開発関連テキストの要点を、日本語で簡潔に要約してください。重要な技術的ポイント、決定事項、またはアクションアイテムがわかるようにまとめてください。応答には要約文のみを含め、他の導入、コメント、代替案などは含めないでください:\n\n${inputText}`;
+      const prompt = `以下のテキスト全体の要点を、日本語で簡潔に要約してください。
+
+      **要約のポイント:**
+      * テキストの主要なメッセージ、結論、または最も重要な情報を捉えてください。
+      * **もしテキストがソフトウェア開発に関連する場合、** 重要な技術的ポイント、決定事項、またはアクションアイテムがあれば、それらが明確にわかるように含めてください。
+      * 読み手が短時間で内容を理解できるように、情報を整理してください（箇条書きも可）。
+      * 応答には要約文**のみ**を含め、導入や個人的なコメントは一切含めないでください。
+
+      要約するテキスト:\\n\\n${inputText}`;
+
       const summarizedText = await callGemini(prompt, geminiApiKey, geminiModel);
 
       setText(summarizedText);
