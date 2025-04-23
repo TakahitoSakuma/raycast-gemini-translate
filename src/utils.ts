@@ -1,5 +1,5 @@
 // src/utils.ts
-import { getSelectedText, Clipboard } from "@raycast/api";
+import { getSelectedText } from "@raycast/api"; // Clipboard を削除
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GenerateContentRequest } from "@google/generative-ai";
 
 export interface Preferences {
@@ -14,15 +14,11 @@ export async function getInputText(): Promise<string> {
     inputText = await getSelectedText();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.info("No text selected, trying clipboard.");
-    const clipboardText = await Clipboard.readText();
-    if (clipboardText) {
-      inputText = clipboardText;
-    }
+    console.info("No text selected.");
+    throw new Error("No Text Selected");
   }
-
   if (!inputText.trim()) {
-    throw new Error("No Text Found. Select text or copy to clipboard.");
+    throw new Error("No Text Selected");
   }
   return inputText.trim();
 }
@@ -55,7 +51,11 @@ export async function callGemini(prompt: string, apiKey: string, modelName: stri
       outputText = response.candidates[0].content.parts[0].text.trim();
     }
 
-    if (!outputText) {
+
+    if (!outputText && response?.promptFeedback?.blockReason) {
+      console.warn("Blocked by safety settings:", response.promptFeedback);
+      throw new Error(`Blocked due to safety settings (${response.promptFeedback.blockReason}).`);
+    } else if (!outputText) {
       console.warn("Response structure might have changed or text is empty:", response);
       throw new Error("Could not extract valid text from response.");
     }
@@ -64,11 +64,13 @@ export async function callGemini(prompt: string, apiKey: string, modelName: stri
     console.error("Gemini API Error:", error);
     let message = "Failed to call Gemini API";
     if (error instanceof Error) {
-      if (error.message.includes("SAFETY")) {
-        message = "Blocked due to safety settings.";
-      } else {
-        // 他のAPIエラーメッセージなども考慮できる
-        message = error.message;
+      if (error.message.includes("SAFETY") || error.message.includes("Blocked due")) {
+        message = `Blocked due to safety settings. Please adjust your prompt or safety settings. Reason: ${error.message}`;
+      } else if (error.message.includes("API key not valid")) {
+        message = "Invalid API Key. Please check your Gemini API Key in preferences.";
+      }
+      else {
+        message = error.message; // 他のAPIエラー
       }
     }
     // エラーを再スローして呼び出し元で処理する
