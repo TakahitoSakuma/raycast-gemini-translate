@@ -12,12 +12,47 @@
   "license": "MIT",
   "preferences": [
     {
+      "name": "authMethod",
+      "title": "Authentication Method",
+      "description": "Choose authentication method",
+      "type": "dropdown",
+      "required": true,
+      "default": "api_key",
+      "data": [
+        {
+          "title": "API Key",
+          "value": "api_key"
+        },
+        {
+          "title": "Vertex AI (Google Cloud)",
+          "value": "vertex_ai"
+        }
+      ]
+    },
+    {
       "name": "geminiApiKey",
       "title": "Gemini API Key",
-      "description": "Your Google AI Gemini API Key",
+      "description": "Your Google AI Gemini API Key (Required for API Key authentication)",
       "type": "password",
-      "required": true,
+      "required": false,
       "placeholder": "Enter your Gemini API Key"
+    },
+    {
+      "name": "gcpProjectId",
+      "title": "Google Cloud Project ID",
+      "description": "Your Google Cloud Project ID (Required for Vertex AI authentication)",
+      "type": "textfield",
+      "required": false,
+      "placeholder": "your-gcp-project-id"
+    },
+    {
+      "name": "gcpLocation",
+      "title": "Google Cloud Location",
+      "description": "Google Cloud location/region (Required for Vertex AI authentication)",
+      "type": "textfield",
+      "required": false,
+      "default": "us-central1",
+      "placeholder": "e.g., us-central1, asia-northeast1"
     },
     {
       "name": "geminiModel",
@@ -73,7 +108,8 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
     "@raycast/api": "^1.94.3",
-    "@raycast/utils": "^1.19.1"
+    "@raycast/utils": "^1.19.1",
+    "google-auth-library": "^9.15.1"
   },
   "devDependencies": {
     "@raycast/eslint-config": "^2.0.4",

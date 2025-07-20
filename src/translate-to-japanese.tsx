@@ -17,9 +17,17 @@ export default function Command() {
     setText("");
 
     try {
-      const { geminiApiKey, geminiModel } = getPreferenceValues<Preferences>();
-      if (!geminiApiKey || !geminiModel) {
-        throw new Error("API Key or Model not configured in preferences.");
+      const preferences = getPreferenceValues<Preferences>();
+      
+      // 認証方法に応じた必須パラメータのチェック
+      if (preferences.authMethod === "api_key" && !preferences.geminiApiKey) {
+        throw new Error("Gemini API Key is required for API Key authentication. Please set it in preferences.");
+      }
+      if (preferences.authMethod === "vertex_ai" && (!preferences.gcpProjectId || !preferences.gcpLocation)) {
+        throw new Error("Google Cloud Project ID and Location are required for Vertex AI authentication. Please set them in preferences.");
+      }
+      if (!preferences.geminiModel) {
+        throw new Error("Gemini Model not configured in preferences.");
       }
 
       const inputText = await getInputText(); // "No Text Selected" がスローされる可能性
@@ -35,7 +43,7 @@ export default function Command() {
 
       Translate the following English text:\\n\\n${inputText} `
 
-      const translatedText = await callGemini(prompt, geminiApiKey, geminiModel);
+      const translatedText = await callGemini(prompt, preferences);
 
       setText(translatedText);
       await showToast(Toast.Style.Success, "Translation Complete");
