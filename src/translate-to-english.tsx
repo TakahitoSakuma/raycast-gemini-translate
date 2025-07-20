@@ -18,13 +18,15 @@ export default function Command() {
 
     try {
       const preferences = getPreferenceValues<Preferences>();
-      
+
       // 認証方法に応じた必須パラメータのチェック
       if (preferences.authMethod === "api_key" && !preferences.geminiApiKey) {
         throw new Error("Gemini API Key is required for API Key authentication. Please set it in preferences.");
       }
       if (preferences.authMethod === "vertex_ai" && (!preferences.gcpProjectId || !preferences.gcpLocation)) {
-        throw new Error("Google Cloud Project ID and Location are required for Vertex AI authentication. Please set them in preferences.");
+        throw new Error(
+          "Google Cloud Project ID and Location are required for Vertex AI authentication. Please set them in preferences.",
+        );
       }
       if (!preferences.geminiModel) {
         throw new Error("Gemini Model not configured in preferences.");
@@ -75,7 +77,12 @@ export default function Command() {
         markdown={`# No Text Selected\n\nPlease select some text in another application and try again.`}
         actions={
           <ActionPanel>
-            <Action title="Refresh" icon={Icon.ArrowClockwise} onAction={() => setRefreshKey(k => k + 1)} shortcut={{ modifiers: ["cmd"], key: "r" }}/>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={() => setRefreshKey((k) => k + 1)}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            />
           </ActionPanel>
         }
       />
@@ -88,7 +95,12 @@ export default function Command() {
         markdown={`# Error\n\n${error}`}
         actions={
           <ActionPanel>
-            <Action title="Refresh" icon={Icon.ArrowClockwise} onAction={() => setRefreshKey(k => k + 1)} shortcut={{ modifiers: ["cmd"], key: "r" }}/>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={() => setRefreshKey((k) => k + 1)}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            />
             <Action.CopyToClipboard title="Copy Error Message" content={error} />
           </ActionPanel>
         }
@@ -110,7 +122,12 @@ export default function Command() {
             </>
           )}
           {/* Refreshアクションは常に表示 */}
-          <Action title="Refresh Translation" icon={Icon.ArrowClockwise} onAction={() => setRefreshKey(k => k + 1)} shortcut={{ modifiers: ["cmd"], key: "r" }}/>
+          <Action
+            title="Refresh Translation"
+            icon={Icon.ArrowClockwise}
+            onAction={() => setRefreshKey((k) => k + 1)}
+            shortcut={{ modifiers: ["cmd"], key: "r" }}
+          />
         </ActionPanel>
       }
     />

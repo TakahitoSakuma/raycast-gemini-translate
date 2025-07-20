@@ -15,18 +15,20 @@ export interface Preferences {
 async function getGoogleCloudAccessToken(): Promise<string> {
   try {
     const auth = new GoogleAuth({
-      scopes: ['https://www.googleapis.com/auth/cloud-platform']
+      scopes: ["https://www.googleapis.com/auth/cloud-platform"],
     });
     const client = await auth.getClient();
     const accessToken = await client.getAccessToken();
-    
+
     if (!accessToken.token) {
-      throw new Error('Failed to obtain access token');
+      throw new Error("Failed to obtain access token");
     }
-    
+
     return accessToken.token;
   } catch {
-    throw new Error('Failed to get Google Cloud access token. Please ensure you are authenticated with Google Cloud (run "gcloud auth application-default login").');
+    throw new Error(
+      'Failed to get Google Cloud access token. Please ensure you are authenticated with Google Cloud (run "gcloud auth application-default login").',
+    );
   }
 }
 
@@ -34,31 +36,31 @@ async function getGoogleCloudAccessToken(): Promise<string> {
 async function callVertexAI(prompt: string, projectId: string, location: string, modelName: string): Promise<string> {
   try {
     const accessToken = await getGoogleCloudAccessToken();
-    
+
     const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${modelName}:generateContent`;
-    
+
     const requestBody = {
       contents: [
         {
           role: "user",
-          parts: [{ text: prompt }]
-        }
+          parts: [{ text: prompt }],
+        },
       ],
       safetySettings: [
         { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
         { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
         { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
         { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-      ]
+      ],
     };
 
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -67,17 +69,23 @@ async function callVertexAI(prompt: string, projectId: string, location: string,
     }
 
     const data = await response.json();
-    
-    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+
+    if (
+      data.candidates &&
+      data.candidates[0] &&
+      data.candidates[0].content &&
+      data.candidates[0].content.parts &&
+      data.candidates[0].content.parts[0]
+    ) {
       return data.candidates[0].content.parts[0].text.trim();
     } else {
-      throw new Error('Invalid response format from Vertex AI');
+      throw new Error("Invalid response format from Vertex AI");
     }
   } catch (error) {
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error('Unknown error occurred while calling Vertex AI');
+    throw new Error("Unknown error occurred while calling Vertex AI");
   }
 }
 
@@ -100,7 +108,7 @@ export async function getInputText(): Promise<string> {
 // 統合されたGemini API呼び出し関数
 export async function callGemini(prompt: string, preferences: Preferences): Promise<string> {
   const { authMethod, geminiApiKey, gcpProjectId, gcpLocation, geminiModel } = preferences;
-  
+
   // 認証方法に応じた必須パラメータの検証
   if (authMethod === "api_key") {
     if (!geminiApiKey) {
@@ -109,7 +117,9 @@ export async function callGemini(prompt: string, preferences: Preferences): Prom
     return await callGeminiWithApiKey(prompt, geminiApiKey, geminiModel);
   } else if (authMethod === "vertex_ai") {
     if (!gcpProjectId || !gcpLocation) {
-      throw new Error("Google Cloud Project ID and Location are required for Vertex AI authentication. Please set them in preferences.");
+      throw new Error(
+        "Google Cloud Project ID and Location are required for Vertex AI authentication. Please set them in preferences.",
+      );
     }
     return await callVertexAI(prompt, gcpProjectId, gcpLocation, geminiModel);
   } else {
@@ -161,8 +171,7 @@ async function callGeminiWithApiKey(prompt: string, apiKey: string, modelName: s
         message = `Blocked due to safety settings. Please adjust your prompt or safety settings. Reason: ${error.message}`;
       } else if (error.message.includes("API key not valid")) {
         message = "Invalid API Key. Please check your Gemini API Key in preferences.";
-      }
-      else {
+      } else {
         message = error.message; // 他のAPIエラー
       }
     }
